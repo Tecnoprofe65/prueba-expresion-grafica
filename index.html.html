@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prueba de Expresión Gráfica</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f3f6fb;
+      color: #1f2937;
+    }
+
+    .contenedor {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .cabecera {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 2rem;
+    }
+
+    .subtitulo {
+      margin: 0;
+      color: #4b5563;
+      line-height: 1.5;
+    }
+
+    .barra-superior {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 18px;
+    }
+
+    .temporizador,
+    .estado {
+      background: #eef2ff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .temporizador.fin {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .pregunta {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .pregunta h3 {
+      margin-top: 0;
+      font-size: 1.1rem;
+      line-height: 1.5;
+    }
+
+    .opciones {
+      margin-top: 12px;
+    }
+
+    .opcion {
+      display: block;
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f9fafb;
+      cursor: pointer;
+      border: 1px solid #e5e7eb;
+      transition: 0.2s ease;
+    }
+
+    .opcion:hover {
+      background: #eef2ff;
+    }
+
+    .opcion input {
+      margin-right: 10px;
+    }
+
+    .correcta {
+      background: #dcfce7 !important;
+      border-color: #22c55e !important;
+    }
+
+    .incorrecta {
+      background: #fee2e2 !important;
+      border-color: #ef4444 !important;
+    }
+
+    .sin-contestar {
+      background: #fef3c7 !important;
+      border-color: #f59e0b !important;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      display: none;
+    }
+
+    .feedback.ok {
+      background: #dcfce7;
+      color: #166534;
+      display: block;
+    }
+
+    .feedback.ko {
+      background: #fee2e2;
+      color: #991b1b;
+      display: block;
+    }
+
+    .feedback.warn {
+      background: #fef3c7;
+      color: #92400e;
+      display: block;
+    }
+
+    .acciones {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-corregir {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-corregir:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-reiniciar {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-reiniciar:hover {
+      background: #d1d5db;
+    }
+
+    .resultado {
+      margin-top: 22px;
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      display: none;
+    }
+
+    .resultado h2 {
+      margin-top: 0;
+    }
+
+    .nota-final {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 12px 0;
+    }
+
+    .resumen {
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .bloqueado {
+      opacity: 0.75;
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+    <div class="cabecera">
+      <h1>Prueba objetiva: Expresión Gráfica</h1>
+      <p class="subtitulo">
+        Lee cada pregunta y marca una sola respuesta. Al pulsar <strong>Corregir prueba</strong>,
+        verás tu nota, tus aciertos y los errores cometidos.
+      </p>
+
+      <div class="barra-superior">
+        <div class="temporizador" id="temporizador">⏳ Tiempo restante: 05:00</div>
+        <div class="estado" id="estado">Intento en curso</div>
+      </div>
+    </div>
+
+<div style="background:white; padding:15px; border-radius:10px; margin-bottom:15px;">
+  <label><strong>Nombre del alumno/a:</strong></label><br>
+  <input type="text" id="nombreAlumno" placeholder="Escribe tu nombre" style="width:100%; padding:8px;"><br><br>
+
+  <label><strong>Grupo:</strong></label><br>
+  <input type="text" id="grupoAlumno" placeholder="Ej: 2º ESO A" style="width:100%; padding:8px;">
+</div>
+    <form id="quizForm"></form>
+
+    <div class="acciones">
+      <button class="btn-corregir" id="btnCorregir" type="button">Corregir prueba</button>
+      <button class="btn-reiniciar" type="button" id="btnReiniciar">Reiniciar intento</button>
+    </div>
+
+    <div class="resultado" id="resultado">
+      <h2>Resultado final</h2>
+      <div class="nota-final" id="notaFinal"></div>
+      <div class="resumen" id="resumen"></div>
+    </div>
+  </div>
+
+  <script>
+    const preguntasBase = [
+      {
+        enunciado: "¿Qué instrumento se utiliza principalmente para trazar circunferencias y arcos?",
+        opciones: [
+          { texto: "Escuadra", correcta: false },
+          { texto: "Compás", correcta: true },
+          { texto: "Transportador de ángulos", correcta: false },
+          { texto: "Regla graduada", correcta: false }
+        ]
+      },
+      {
+        enunciado: "En dibujo técnico, ¿qué representa una escala?",
+        opciones: [
+          { texto: "El grosor de las líneas del dibujo", correcta: false },
+          { texto: "La relación entre las medidas del dibujo y las medidas reales", correcta: true },
+          { texto: "El número de vistas de una pieza", correcta: false },
+          { texto: "La inclinación de una recta", correcta: false }
+        ]
+      },
+      {
+        enunciado: "¿Qué instrumento es más adecuado para medir y construir ángulos?",
+        opciones: [
+          { texto: "Transportador", correcta: true },
+          { texto: "Cartabón", correcta: false },
+          { texto: "Compás", correcta: false },
+          { texto: "Plantilla de círculos", correcta: false }
+        ]
+      },
+      {
+        enunciado: "La escuadra y el cartabón se utilizan sobre todo para...",
+        opciones: [
+          { texto: "Borrar líneas auxiliares", correcta: false },
+          { texto: "Trazar rectas y ángulos determinados", correcta: true },
+          { texto: "Medir la masa de los objetos", correcta: false },
+          { texto: "Dibujar únicamente circunferencias", correcta: false }
+        ]
+      },
+      {
+        enunciado: "¿Cuál de estas afirmaciones sobre la expresión gráfica es correcta?",
+        opciones: [
+          { texto: "Solo sirve para hacer dibujos artísticos", correcta: false },
+          { texto: "Permite representar objetos e ideas de forma visual y precisa", correcta: true },
+          { texto: "No necesita normas ni instrumentos", correcta: false },
+          { texto: "No se usa en Tecnología", correcta: false }
+        ]
+      }
+    ];
+
+    const quizForm = document.getElementById("quizForm");
+    const btnCorregir = document.getElementById("btnCorregir");
+    const btnReiniciar = document.getElementById("btnReiniciar");
+    const resultado = document.getElementById("resultado");
+    const notaFinal = document.getElementById("notaFinal");
+    const resumen = document.getElementById("resumen");
+    const temporizadorEl = document.getElementById("temporizador");
+    const estadoEl = document.getElementById("estado");
+
+    let preguntas = [];
+    let examenCorregido = false;
+    let tiempoRestante = 300; // 5 minutos
+    let intervalo = null;
+
+    function mezclarArray(array) {
+      const copia = [...array];
+      for (let i = copia.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copia[i], copia[j]] = [copia[j], copia[i]];
+      }
+      return copia;
+    }
+
+    function prepararPreguntas() {
+      preguntas = mezclarArray(
+        preguntasBase.map((pregunta) => ({
+          ...pregunta,
+          opciones: mezclarArray(pregunta.opciones)
+        }))
+      );
+    }
+
+    function renderizarPreguntas() {
+      quizForm.innerHTML = "";
+
+      preguntas.forEach((pregunta, index) => {
+        const div = document.createElement("div");
+        div.className = "pregunta";
+        div.dataset.index = index;
+
+        let opcionesHTML = "";
+        pregunta.opciones.forEach((opcion, opcionIndex) => {
+          const idOpcion = `p${index}_o${opcionIndex}`;
+          opcionesHTML += `
+            <label class="opcion" for="${idOpcion}">
+              <input type="radio" name="p${index}" id="${idOpcion}" value="${opcionIndex}">
+              ${opcion.texto}
+            </label>
+          `;
+        });
+
+        div.innerHTML = `
+          <h3>${index + 1}. ${pregunta.enunciado}</h3>
+          <div class="opciones">${opcionesHTML}</div>
+          <div class="feedback" id="feedback${index}"></div>
+        `;
+
+        quizForm.appendChild(div);
+      });
+    }
+
+    function iniciarTemporizador() {
+      clearInterval(intervalo);
+      actualizarTemporizador();
+
+      intervalo = setInterval(() => {
+        tiempoRestante--;
+        actualizarTemporizador();
+
+        if (tiempoRestante <= 0) {
+          clearInterval(intervalo);
+          temporizadorEl.classList.add("fin");
+          temporizadorEl.textContent = "⏰ Tiempo agotado";
+          if (!examenCorregido) {
+            corregirExamen(true);
+          }
+        }
+      }, 1000);
+    }
+
+    function actualizarTemporizador() {
+      const minutos = String(Math.floor(tiempoRestante / 60)).padStart(2, "0");
+      const segundos = String(tiempoRestante % 60).padStart(2, "0");
+      temporizadorEl.textContent = `⏳ Tiempo restante: ${minutos}:${segundos}`;
+    }
+
+    function deshabilitarFormulario() {
+      const inputs = quizForm.querySelectorAll("input");
+      inputs.forEach(input => input.disabled = true);
+      quizForm.classList.add("bloqueado");
+      btnCorregir.disabled = true;
+      btnCorregir.classList.add("bloqueado");
+    }
+
+    function corregirExamen(porTiempo = false) {
+      if (examenCorregido) return;
+
+      examenCorregido = true;
+      clearInterval(intervalo);
+      estadoEl.textContent = porTiempo ? "Prueba finalizada por tiempo" : "Prueba corregida";
+
+      let aciertos = 0;
+      let errores = 0;
+      let sinResponder = 0;
+
+      preguntas.forEach((pregunta, index) => {
+        const opcionesMarcadas = document.getElementsByName(`p${index}`);
+        const feedback = document.getElementById(`feedback${index}`);
+        const labels = quizForm.querySelectorAll(`[name="p${index}"]`);
+
+        let seleccion = null;
+
+        opcionesMarcadas.forEach((opcion) => {
+          if (opcion.checked) {
+            seleccion = parseInt(opcion.value, 10);
+          }
+        });
+
+        const indiceCorrecto = pregunta.opciones.findIndex(op => op.correcta);
+
+        labels.forEach((input) => {
+          const label = input.parentElement;
+          const valor = parseInt(input.value, 10);
+
+          if (valor === indiceCorrecto) {
+            label.classList.add("correcta");
+          }
+        });
+
+        if (seleccion === null) {
+          sinResponder++;
+          feedback.className = "feedback warn";
+          feedback.textContent = `⚠️ No respondida. La respuesta correcta era: ${pregunta.opciones[indiceCorrecto].texto}`;
+        } else if (seleccion === indiceCorrecto) {
+          aciertos++;
+          feedback.className = "feedback ok";
+          feedback.textContent = "✅ Correcta";
+        } else {
+          errores++;
+          const seleccionInput = quizForm.querySelector(`input[name="p${index}"][value="${seleccion}"]`);
+          if (seleccionInput) {
+            seleccionInput.parentElement.classList.add("incorrecta");
+          }
+          feedback.className = "feedback ko";
+          feedback.textContent = `❌ Incorrecta. La respuesta correcta era: ${pregunta.opciones[indiceCorrecto].texto}`;
+        }
+      });
+
+      const total = preguntas.length;
+      const nota = (aciertos / total) * 10;
+
+      notaFinal.textContent = `Nota: ${nota.toFixed(2)} / 10`;
+      resumen.innerHTML = `
+        <strong>Aciertos:</strong> ${aciertos} de ${total}<br>
+        <strong>Errores:</strong> ${errores}<br>
+        <strong>Sin responder:</strong> ${sinResponder}<br><br>
+        ${nota >= 5 ? "🎉 Enhorabuena, has superado la prueba." : "📘 Debes seguir practicando algunos contenidos de expresión gráfica."}
+      `;
+
+      resultado.style.display = "block";
+      deshabilitarFormulario();
+const nombreAlumno = document.getElementById("nombreAlumno").value;
+const grupoAlumno = document.getElementById("grupoAlumno").value;
+
+if (!nombreAlumno || !grupoAlumno) {
+  alert("Por favor, rellena tu nombre y grupo antes de enviar.");
+  return;
+}
+
+fetch("https://script.google.com/a/macros/canariaseducacion.es/s/AKfycbxBwnrQ2PnqM_Ad4x2FMOZF_4IWXtTncs79DiCdKstDfZ_AZ_E0fIq1Yzt0jk_hwCQDGg/exec", {
+  method: "POST",
+  headers: {
+    "Content-Type": "text/plain;charset=utf-8"
+  },
+  body: JSON.stringify({
+    nombre: nombreAlumno,
+    grupo: grupoAlumno,
+    aciertos: aciertos,
+    errores: errores,
+    sinResponder: sinResponder,
+    nota: nota
+  })
+})
+.then(response => response.text())
+.then(data => {
+  console.log("Respuesta Apps Script:", data);
+  alert("Respuesta del servidor: " + data);
+})
+.catch(error => {
+  console.error("Error al enviar:", error);
+  alert("Error al enviar: " + error);
+});
+    }
+
+    function reiniciarExamen() {
+      examenCorregido = false;
+      tiempoRestante = 300;
+      resultado.style.display = "none";
+      estadoEl.textContent = "Intento en curso";
+      temporizadorEl.classList.remove("fin");
+      btnCorregir.disabled = false;
+      btnCorregir.classList.remove("bloqueado");
+      quizForm.classList.remove("bloqueado");
+
+      prepararPreguntas();
+      renderizarPreguntas();
+      iniciarTemporizador();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    btnCorregir.addEventListener("click", () => corregirExamen(false));
+    btnReiniciar.addEventListener("click", reiniciarExamen);
+
+    prepararPreguntas();
+    renderizarPreguntas();
+    iniciarTemporizador();
+  </script>
+</body>
+</html>
